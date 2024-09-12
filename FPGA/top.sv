@@ -19,14 +19,48 @@ module top(
 
 endmodule
 
-module displayMultiplexer #(parameter displayFreqKHz=1) (
+module displayMultiplexer #(parameter displayFreqHz=1200) (
     input   logic   [7:0]   switch,
-    output  logic   [6:0]   segment
+    input   logic           reset,
+    output  logic   [6:0]   segment,
+    output  logic           displayL,
+    output  logic           displayR
     );
-    // This modules calls the sevenSegLogic module from e155_lab1.
-    // This module uses the high speed oscillator on the UPduino v3.1
-    // board to 
+    /* This modules calls the sevenSegLogic module from e155_lab1.
+    This module uses the high speed oscillator on the UPduino v3.1
+    board to multiplex between two 7 segment displays at a rate
+    of #(displayFreqHz). It sends the signals out using the same 
+    segment pins for both displays, then toggles between L and R
+    display power to illuminate each of the two back and forth. 
+    Note that the [7:4] bits of switch are L display, [3:0] are R.
+    Note that toggle=1 corresponds to Display L, and 0 for R. */
 
+    logic           toggleFreq;
+    logic   [6:0]   intSegL;
+    logic   [6:0]   intSegR;
+    logic   [3:0]   swR;
+    logic   [3:0]   swL;
+    logic           toggle;
+
+    assign swR = switch[3:0];
+    assign swL = switch[7:4];
+
+    sevenSegLogic   segRightCall (swR, intSegR);
+    sevenSegLogic   segLeftCall  (swL, intSegL);
+
+    frequencyGenerator freqGenCall #(48000000/displayFreqHz, 24000000/displayFreqHz, 17) (
+        input   logic   reset,
+        output  logic   toggleFreq
+    );
+
+    always_ff @(posedge freqGenCall)
+    // Need to change this posedge call, something about it isn't working right now. need a way to toggle back and forth.
+    if (reset) begin
+        toggle <= 0;
+        segment <= 
+    end
+        toggle <= 0;
+    end
 
 endmodule
 
