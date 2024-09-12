@@ -47,7 +47,7 @@ module displayMultiplexer #(parameter displayFreqHz=1000) (
     sevenSegLogic   segRightCall (switch[3:0], intSegR);
     sevenSegLogic   segLeftCall  (switch[7:4], intSegL);
 
-    frequencyGenerator freqGenCall #(48000000/displayFreqHz, 24000000/displayFreqHz, 17) (reset, toggleFreq);
+    frequencyGenerator #(.divisionFactor(48000), .halfFactor(24000), .counterBits(20)) freqGenCall (reset, toggleFreq);
 
     always_ff @(posedge toggleFreq)
     // If reset is high (active low reset), and we were displaying the R screen with toggle=01
@@ -61,8 +61,8 @@ module displayMultiplexer #(parameter displayFreqHz=1000) (
         segment <= intSegR;
     end
 
-    assign displayL = toggle[1];
-    assign displayR = toggle[0];
+    assign displayL = ~toggle[1];
+    assign displayR = ~toggle[0];
 
 endmodule
 
@@ -126,8 +126,4 @@ module ledLogic(
     // two hex numbers, encoded as 2 4-bit numbers by 8 total switches.
 
     assign led[4:0] = switch[7:4] + switch[3:0];
-endmodule
-
-module ledTestbench();
-
 endmodule
