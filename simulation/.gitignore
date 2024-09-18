@@ -1,0 +1,7 @@
+# ModelSim Ignore Files
+*.mti
+*.mpf
+*.bak
+*.wlf
+/work
+transcript

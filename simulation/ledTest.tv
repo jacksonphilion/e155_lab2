@@ -1,0 +1,20 @@
+// ledTest.tv
+// This file pairs with simulation.sv, a spin off of
+// the top.sv file for Lab 2, which encodes dual seven segment displays
+// for use in E155: Microprocessors, a class taught at
+// Harvey Mudd College by Prof Josh Brake.
+
+// Created by Jackson Philion on Sep.17.2024
+// jphilion@g.hmc.edu
+
+// Order Read Out By Simulation.sv
+// input s[7:0], the expected outputs led[4:0]
+// SsegsegsLL
+0000_0000_00000
+0001_0110_00111
+0000_1101_01101
+0110_0110_01100
+1111_1111_11110
+1101_0001_01110
+1000_0101_01101
+1011_1011_10110
