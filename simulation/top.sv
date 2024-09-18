@@ -23,9 +23,14 @@ module top(
 
 endmodule
 
-module displayMultiplexer #(parameter displayFreqHz=1) (
+
+/* Note: The following module was edited to be simulated in a testbench.
+The internal oscillator was removed and toggleFreq was added as an
+external given variable. This should not be synthesized. */
+module displayMultiplexer (
     input   logic   [7:0]   switch,
     input   logic           reset,
+    input   logic           toggleFreq,
     output  logic   [6:0]   segment,
     output  logic           displayL,
     output  logic           displayR
@@ -39,11 +44,8 @@ module displayMultiplexer #(parameter displayFreqHz=1) (
     Note that the [7:4] bits of switch are L display, [3:0] are R.
     Note that toggle[1] corresponds to Display L, and [0] to R. */
 
-    logic           toggleFreq;
     logic   [3:0]   intSwitch;
     logic   [1:0]   toggle;
-
-    frequencyGenerator #(.divisionFactor(48000)) freqGenCall (reset, toggleFreq);
 
     always_ff @(posedge toggleFreq)
     // If reset is low (active low reset), or we were displaying the L screen, switch to R with toggle=01
@@ -125,6 +127,68 @@ module sevenSegLogic(
             4'hf: segment <= ~7'b0010111;
             default: segment <= ~7'b0000001;
         endcase
+endmodule
+
+module displayMultTestbench();
+  /* This testbench removes the internal oscillator, instead generating
+  a representative signal directly in simulation. It is intended to demonstrate
+  the effective switching between output segments and input switches to display
+  both digits. The timing will be approved manually by testing in person. 
+  Additionally, it is not automatic. It only loads switch states and expected
+  illumination states. The checking and verifying that it is displayed at the
+  correct time should be done by hand in the ModelSim waveform. */
+
+  // Instantiate variables from across the modules that you need to use in testbench
+  logic   [7:0]   switch;
+  logic           reset;
+  logic           toggleFreq;
+  logic   [6:0]   segment;
+  logic           displayL;
+  logic           displayR;
+
+  logic		        clk;
+
+  logic [31:0] vectornum, errors;
+  logic [21:0] testvectors[10000:0];
+  
+  logic        new_error;
+  logic [13:0]  expected;
+
+  // instantiate device to be tested
+  displayMultiplexer dut(~switch, ~reset, toggleFreq, segment, displayL, displayR);
+  
+  // generate clock
+  always 
+    begin
+      clk = 1; #21; clk = 0; #1;
+    end
+  
+  always
+    begin
+      toggleFreq = 1; #2; toggleFreq = 0; #2;
+    end
+
+  // at start of test, load vectors and pulse reset
+  initial
+    begin
+      $readmemb("displayMultTest.tv", testvectors);
+      vectornum = 0; errors = 0;
+      reset = 1; #5; reset = 0;
+    end
+	 
+  // apply test vectors on rising edge of clk
+  always @(posedge clk)
+    begin
+      #1; {switch, expected} = testvectors[vectornum];
+    end
+
+  // check results on falling edge of clk
+  always @(negedge clk)
+    if (~reset) begin // skip cycles during reset
+      new_error=0; 
+      vectornum = vectornum + 1;
+    end
+
 endmodule
 
 module ledTestbench();
