@@ -9,6 +9,17 @@ from the previous lab which was used to copy the segment logic.
 github.com/jacksonphilion/e155_lab2
 */
 
+
+// NOTE    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// FOR SIMULATION ONLY
+// DO NOT SYNTHESIZE
+// FOR SIMULATION ONLY
+// DO NOT SYNTHESIZE
+
+// refer to the github above to access the FPGA version of this code.
+// NOTE    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 module top(
     input   logic   [7:0]   sw,
     input   logic           reset,
